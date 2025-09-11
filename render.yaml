@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: rotino-backend
+    env: node
+    rootDirectory: backend
+    plan: free
+    buildCommand: npm ci
+    startCommand: node server.js
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: PORT
+        value: 10000
+      - key: AUTH_MODE
+        value: mock
+      - key: PAYMENTS_MODE
+        value: mock
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://REPLACE_WITH_FRONTEND_URL
+      - key: MONGODB_URI
+        value: ""
+
+  - type: static
+    name: rotino-frontend
+    rootDirectory: frontend
+    plan: free
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://REPLACE_WITH_BACKEND_URL/api
