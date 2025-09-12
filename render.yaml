@@ -19,11 +19,11 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: https://REPLACE_WITH_FRONTEND_URL
+        value: https://rotino-frontend.onrender.com
       - key: MONGODB_URI
-        value: ""
+        value: ""   # set this in dashboard or fill with your Mongo connection string
 
-  - type: static
+  - type: static_site
     name: rotino-frontend
     rootDirectory: frontend
     plan: free
@@ -31,4 +31,4 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
-        value: https://REPLACE_WITH_BACKEND_URL/api
+        value: https://rotino-backend.onrender.com/api
