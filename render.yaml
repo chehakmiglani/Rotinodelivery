@@ -2,7 +2,7 @@ services:
   - type: web
     name: rotino-backend
     runtime: node
-    rootDirectory: backend
+    rootDir: backend
     plan: free
     buildCommand: npm ci
     startCommand: node server.js
@@ -26,7 +26,7 @@ services:
   - type: web
     name: rotino-frontend
     runtime: static
-    rootDirectory: frontend
+    rootDir: frontend
     plan: free
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
