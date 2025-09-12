@@ -1,7 +1,7 @@
 services:
   - type: web
     name: rotino-backend
-    env: node
+    runtime: node
     rootDirectory: backend
     plan: free
     buildCommand: npm ci
@@ -23,8 +23,9 @@ services:
       - key: MONGODB_URI
         value: ""   # set this in dashboard or fill with your Mongo connection string
 
-  - type: static_site
+  - type: web
     name: rotino-frontend
+    runtime: static
     rootDirectory: frontend
     plan: free
     buildCommand: npm ci && npm run build
