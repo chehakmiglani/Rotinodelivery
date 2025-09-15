@@ -145,6 +145,24 @@ router.post('/login', validateRequest(loginSchema), async (req, res) => {
   }
 });
 
+// Mock login helper (only in mock mode) to force-set cookie when frontend having issues
+router.get('/mock-login', (req, res) => {
+  if (!isMockAuth) {
+    return res.status(400).json({ success: false, message: 'Not available outside mock mode' });
+  }
+  const token = generateToken('mock_user', { name: 'Demo User', email: 'demo@example.com', role: 'customer' });
+  setTokenCookie(res, token);
+  res.json({ success: true, message: 'Mock login cookie set', user: { _id: 'mock_user', name: 'Demo User', email: 'demo@example.com', role: 'customer' } });
+});
+
+// Debug cookie endpoint to inspect request cookies (mock mode only)
+router.get('/debug-cookie', (req, res) => {
+  if (!isMockAuth) {
+    return res.status(400).json({ success: false, message: 'Not available outside mock mode' });
+  }
+  res.json({ success: true, cookies: req.cookies, receivedToken: !!req.cookies.token });
+});
+
 // Logout
 router.post('/logout', (req, res) => {
   clearTokenCookie(res);
