@@ -5,6 +5,7 @@ import Order from '../models/Order.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { validateRazorpaySignature } from '../utils/razorpayUtils.js';
 import { generateOrderReceipt } from '../utils/pricing.js';
+import { addMockOrder, getMockOrder } from '../utils/mockStore.js';
 
 const router = express.Router();
 
@@ -150,10 +151,16 @@ router.post('/verify-payment', authenticateToken, async (req, res) => {
 
     // Mock mode: simulate success without DB
     if (razorpayConfig.isMock) {
-      const mockOrder = {
+      const existing = getMockOrder(orderId);
+      const mockOrder = existing || addMockOrder({
         _id: orderId || `mock_${Date.now()}`,
+        user: req.user?._id || 'mock_user',
         status: 'confirmed',
-      };
+        orderSummary: { total: Number(req.body.amount) || 0 },
+        createdAt: new Date().toISOString(),
+        restaurant: 'mock_restaurant',
+        items: [],
+      });
       return res.json({
         success: true,
         message: 'Mock payment verified successfully',
@@ -162,6 +169,7 @@ router.post('/verify-payment', authenticateToken, async (req, res) => {
           status: mockOrder.status,
           orderNumber: `ORD${mockOrder._id.toString().slice(-8).toUpperCase()}`,
           estimatedDeliveryTime: new Date(Date.now() + 45 * 60000).toISOString(),
+          formattedTotal: mockOrder.orderSummary.total ? `₹${(mockOrder.orderSummary.total / 100).toFixed(2)}` : undefined
         },
       });
     }

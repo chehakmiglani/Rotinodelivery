@@ -7,6 +7,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import { validateRequest } from '../middleware/validation.js';
 import { createOrderSchema, updateOrderStatusSchema, rateOrderSchema } from '../schemas/orderSchemas.js';
 import { calculateOrderTotal } from '../utils/pricing.js';
+import { listMockOrdersByUser } from '../utils/mockStore.js';
 
 dotenv.config();
 const router = express.Router();
@@ -159,7 +160,15 @@ router.get('/my-orders', authenticateToken, async (req, res) => {
   try {
     // In mock mode, return a safe empty list so UI works without DB
     if (isMock) {
-      return res.json({ success: true, orders: [], pagination: { current: 1, total: 0, count: 0, totalOrders: 0 } });
+      const mockOrders = listMockOrdersByUser(req.user?._id || 'mock_user').map(o => ({
+        _id: o._id,
+        orderNumber: `ORD${o._id.toString().slice(-8).toUpperCase()}`,
+        status: o.status,
+        formattedTotal: o.orderSummary?.total ? `₹${(o.orderSummary.total / 100).toFixed(2)}` : '₹0.00',
+        createdAt: o.createdAt,
+        itemCount: o.items?.length || 0,
+      }));
+      return res.json({ success: true, orders: mockOrders, pagination: { current: 1, total: 1, count: mockOrders.length, totalOrders: mockOrders.length } });
     }
     const { status, page = 1, limit = 10 } = req.query;
 
